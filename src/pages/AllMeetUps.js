@@ -1,47 +1,48 @@
+import { useState, useEffect } from 'react';
 import MeetupList from "../components/meetups/MeetupList";
 
 
-// holds array of dummy meetups
-const DUMMYY_DATA = [
-    {
-        id: 'm1',
-        title: 'This is the first meetup',
-        image: 'https://source.unsplash.com/600x400/?computer, meetup',
-        address: 'Meetupstreet 5, 3421 NY City',
-        description: 'This is the first meet up which you should not miss. It will be graced by some awsome developers around the world!'
-    },
+function AllMeetUpsPage() {
+    const [isLoading, setIsLoading] = useState(true);
+    const [loadedMeetups, setLoadedMeetups] = useState([]);
 
-    {
-        id: 'm2',
-        title: 'This is the much awaited React Meetup-2.0',
-        image: 'https://source.unsplash.com/600x400/?computer, cafe',
-        address: 'Meetupstreet 5, 3421 NY City',
-        description: 'This is the first meet up which you should not miss. It will be graced by some awsome developers around the world!'
-    },
+    useEffect(() => {
+        setIsLoading(true);
+        // to display the data we have in the db
+        fetch('https://react-meetupapp-654f0-default-rtdb.firebaseio.com/meetups.json'
+        ).then(response => {
+            // it will give the data automatically converted from json to a plain js obj
+            return response.json();
+        }).then(data => {
+            
+            const meetups = [];
+            for(const key in data){
+                const meetup = {
+                    id: key,
+                    ...data[key]
+                };
+                meetups.push(meetup);
+            }
 
-    {
-        id: 'm3',
-        title: 'This is the 3rd meetup',
-        image: 'https://source.unsplash.com/600x400/?computer, coding',
-        address: 'Meetupstreet 5, 3421 NY City',
-        description: 'This is the first meet up which you should not miss. It will be graced by some awsome developers around the world!'
-    },
+            setIsLoading(false);
+            setLoadedMeetups(meetups);
+            
+            // extract an array of meetups and pass that as a value to the meetups prop on the meetup list
+            // setIsLoading(false);
+            // setLoadedMeetups(data);
+        });
+    }, [])
 
-    {
-        id: 'm4',
-        title: 'This is the 4th meetup',
-        image: 'https://source.unsplash.com/600x400/?computer, house',
-        address: 'Meetupstreet 5, 3421 NY City',
-        description: 'This is the first meet up which you should not miss. It will be graced by some awsome developers around the world!'
+    if (isLoading) {
+        return <section>
+            <p>Loading...</p>
+        </section>
     }
 
-];
-
-function AllMeetUpsPage() {
     return <section>
         <h1>All Meetups</h1>
         <ul>
-            <MeetupList meetups={DUMMYY_DATA}/>
+            <MeetupList meetups={loadedMeetups} />
         </ul>
 
     </section>
